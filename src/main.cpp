@@ -1,6 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <U8x8lib.h>
 #include <SenseAirS8.h>
+#include <debug.h>
 
 
 // void s8_init() {
@@ -42,6 +43,13 @@ void loop() {
   display.setFont(u8x8_font_chroma48medium8_r);
 
   int co2 = co2sensor.read_co2();
+  DEBUG("co2: %d\n", co2);
+
+  int abs = co2sensor.read_ABS();
+  DEBUG("abs: %d\n", abs);
+
+  int status = co2sensor.read_status();
+  DEBUG("status: %d\n", status);
 
   if (m == 0) {
     display.clear();

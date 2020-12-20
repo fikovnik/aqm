@@ -45,12 +45,16 @@ void SenseAirS8::begin() {
   comm.begin(9600);
 }
 
-int8_t SenseAirS8::read_ir(int8_t reg, int8_t quantity, byte res[]) {
+int8_t SenseAirS8::read(RegisterType type, int8_t reg, int8_t quantity, byte res[]) {
   // TODO check register number 0 -- 31
   // TODO check quantity accordingly
   byte cmd[8];
   cmd[0] = 0xFE; // any address
-  cmd[1] = 0x04; // read IR
+
+  switch(type) {
+    case IR: cmd[1] = 0x04; break;
+    case HR: cmd[1] = 0x03; break;
+  }
   cmd[2] = 0;
   cmd[3] = reg;
   cmd[4] = 0;
@@ -126,7 +130,6 @@ int SenseAirS8::read_co2() {
   int8_t status = read_ir(3, 1, res);
   if (status == 0) {
     int co2 = res[0] * 256 + res[1];
-    DEBUG("co2: %5d\n", co2);
 
     return co2;
   } else {
@@ -136,4 +139,26 @@ int SenseAirS8::read_co2() {
   // int status = result[3] * 256 + result[4];
   // int co2 = result[9] * 256 + result[10];
   // DEBUG("co2: %5d status: %d\n", co2, status);
+}
+
+int SenseAirS8::read_status() {
+  byte res[2];
+
+  int8_t status = read_ir(0, 1, res);
+  if (status == 0) {
+    return res[0] * 256 + res[1];
+  } else {
+    return -status;
+  }
+}
+
+int SenseAirS8::read_ABS() {
+  byte res[2];
+
+  int8_t status = read_hr(0x1F, 1, res);
+  if (status == 0) {
+    return res[0] * 256 + res[1];
+  } else {
+    return -status;
+  }
 }
