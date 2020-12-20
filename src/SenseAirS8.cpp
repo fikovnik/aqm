@@ -219,3 +219,46 @@ int SenseAirS8::read_ABS() {
     return status;
   }
 }
+
+int SenseAirS8::calibrate() {
+  DEBUG("Calibrating...\n");
+
+  int status = 0;
+
+  // 1. clear ACK registry by writing 0 to HR1
+  DEBUG("- clearing ACK register...\n");
+  status = write(0, 0, 0);
+  if (status) {
+    DEBUG("- failed: %d\n", status);
+    return -1;
+  } else {
+    DEBUG("- done\n");
+  }
+
+  // 2. start the calibration
+  // 0x7C is the command from data sheet
+  // 0x06 is the background calibration
+  DEBUG("- starting calibration...\n");
+  status = write(1, 0x7C, 0x06);
+  if (status) {
+    DEBUG("- failed: %d\n", status);
+    return -1;
+  } else {
+    DEBUG("- done\n");
+  }
+
+  // 3. wait at least two seconds
+  DEBUG("- waiting...\n");
+  delay(4000);
+  DEBUG("- done\n");
+
+  // 4. read the acknowledgement
+  DEBUG("- reading ACK...\n");
+  byte res[2];
+  status = read_hr(0, 1, res);
+  DEBUG("- result %x,%x\n", res[0], res[1]);
+  // TODO check
+
+  DEBUG("Calibrating.... done\n");
+  return 0;
+}

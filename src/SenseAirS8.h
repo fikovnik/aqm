@@ -33,6 +33,7 @@ public:
   int read_status();
   int read_co2();
   int read_ABS();
+  int calibrate();
 };
 
 #endif // SENSEAIRS8_H
