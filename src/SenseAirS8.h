@@ -11,12 +11,13 @@ enum RegisterType {
 
 class SenseAirS8 {
 private:
-  static byte const CMD_READ_CO2[];
-  static byte const CMD_READ_CO2_W_STATUS[];
-
   SoftwareSerial comm;
 
   static void crc(byte buf[], int8_t len, byte crc[]);
+  void send(byte cmd[], int8_t size);
+  int8_t recv(byte res[], int8_t size);
+
+  int8_t write(byte addr, byte val_low, byte val_high);
   int8_t read(RegisterType type, byte addr, byte quantity, byte res[]);
 
   int8_t read_hr(byte reg, byte quantity, byte res[]) {
