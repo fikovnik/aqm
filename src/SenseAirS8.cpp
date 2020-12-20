@@ -45,7 +45,7 @@ void SenseAirS8::begin() {
   comm.begin(9600);
 }
 
-int8_t SenseAirS8::read(RegisterType type, int8_t reg, int8_t quantity, byte res[]) {
+int8_t SenseAirS8::read(RegisterType type, byte addr, byte quantity, byte res[]) {
   // TODO check register number 0 -- 31
   // TODO check quantity accordingly
   byte cmd[8];
@@ -56,7 +56,7 @@ int8_t SenseAirS8::read(RegisterType type, int8_t reg, int8_t quantity, byte res
     case HR: cmd[1] = 0x03; break;
   }
   cmd[2] = 0;
-  cmd[3] = reg;
+  cmd[3] = addr;
   cmd[4] = 0;
   cmd[5] = quantity;
   crc(cmd, 6, cmd+6);
