@@ -1,0 +1,75 @@
+esphome:
+  name: indoor
+  platform: ESP8266
+  board: d1_mini
+
+i2c:
+  id: bus_a
+  sda: D2
+  scl: D1
+  scan: true
+  frequency: 100000
+
+uart:
+  rx_pin: D7
+  tx_pin: D8
+  baud_rate: 9600
+
+logger:
+  level: DEBUG
+  baud_rate: 74880
+
+api:
+  password: !secret hass_api_pass
+  services:
+    - service: co2_calibrate
+      then:
+        - senseair.background_calibration: senseair_s8
+    - service: co2_calibrate_result
+      then:
+        - senseair.background_calibration_result: senseair_s8
+    - service: co2_enable_abc
+      then:
+        - senseair.abc_enable: senseair_s8
+
+ota:
+  password: !secret ota_pass
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_pass
+  ap:
+    ssid: "Indoor Fallback Hotspot"
+    password: !secret hotspot_pass
+
+captive_portal:
+
+sensor:
+  - platform: sht4x
+    temperature:
+      id: sht4x_temp
+      name: "Temperature"
+    humidity:
+      id: sht4x_hum
+      name: "Relative Humidity"
+    precision: "High"
+  - platform: senseair
+    id: senseair_s8
+    co2:
+      id: s8co2
+      name: "CO2 Value"
+    update_interval: 60s
+
+font:
+  - id: font_dejavu
+    file: "font/dejavu-sans-mono.ttf"
+    size: 10
+
+display:
+  - platform: ssd1306_i2c
+    model: "SSD1306 128x64"
+    address: 0x3C
+    lambda: |-
+      it.printf(0, 00, id(font_dejavu), "T: %.1f C", id(sht4x_temp).state);
+      it.printf(0, 10, id(font_dejavu), "H: %.1f %% rH", id(sht4x_hum).state);
+      it.printf(0, 20, id(font_dejavu), "CO2: %.1f ppm", id(s8co2).state);
