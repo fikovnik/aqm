@@ -4,3 +4,7 @@ CONFIG := indoor.yaml
 
 run:
 	esphome run $(CONFIG)
+
+upload:
+	esphome upload $(CONFIG)
+
