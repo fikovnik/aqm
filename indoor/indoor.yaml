@@ -31,6 +31,9 @@ api:
     - service: co2_enable_abc
       then:
         - senseair.abc_enable: senseair_s8
+    - service: co2_disable_abc
+      then:
+        - senseair.abc_disable: senseair_s8
 
 ota:
   password: !secret ota_pass
