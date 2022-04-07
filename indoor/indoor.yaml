@@ -3,6 +3,10 @@ esphome:
   platform: ESP8266
   board: d1_mini
 
+time:
+  - platform: sntp
+    id: sntp_time
+
 i2c:
   id: bus_a
   sda: D2
@@ -51,22 +55,47 @@ sensor:
   - platform: sht4x
     temperature:
       id: sht4x_temp
-      name: "Temperature"
+      name: "SHT4x Temperature"
     humidity:
       id: sht4x_hum
-      name: "Relative Humidity"
+      name: "SHT4x Humidity"
     precision: "High"
   - platform: senseair
     id: senseair_s8
     co2:
-      id: s8co2
-      name: "CO2 Value"
+      id: s8_co2
+      name: "S8 CO2"
       # filters:
       # - sliding_window_moving_average:
       #     window_size: 10
       #     send_every: 10
     update_interval: 60s
-
+  - platform: scd30
+    co2:
+      id: scd30_co2
+      name: "SCD30 CO2"
+      accuracy_decimals: 1
+    temperature:
+      id: scd30_temp
+      name: "SCD30 Temperature"
+      accuracy_decimals: 2
+    humidity:
+      id: scd30_hum
+      name: "SCD30 Humidity"
+      accuracy_decimals: 1
+    temperature_offset: 1.5 °C
+    address: 0x61
+    update_interval: 10s
+  - platform: adc
+    id: vbat
+    pin: A0
+    name: "Battery"
+    update_interval: 10s
+  - platform: adc
+    id: vcc
+    pin: VCC
+    name: "VCC Voltage"
+    update_interval: 10s
 
 font:
   - id: font_dejavu
@@ -78,6 +107,8 @@ display:
     model: "SSD1306 128x64"
     address: 0x3C
     lambda: |-
-      it.printf(0, 00, id(font_dejavu), "T: %.1f C", id(sht4x_temp).state);
-      it.printf(0, 10, id(font_dejavu), "H: %.1f %% rH", id(sht4x_hum).state);
-      it.printf(0, 20, id(font_dejavu), "CO2: %.1f ppm", id(s8co2).state);
+      auto time = id(sntp_time).now();
+      it.printf(0, 0, id(font_dejavu), "%d:%d:%d", time.hour, time.minute, time.second);
+      it.printf(it.get_width(), 0, id(font_dejavu), TextAlign::TOP_RIGHT, "%.2f %.2f", id(vbat).state, id(vcc).state);
+      it.printf(0, 10, id(font_dejavu), "T %.1f H %.1f C %.0f", id(sht4x_temp).state, id(sht4x_hum).state, id(s8_co2).state);
+      it.printf(0, 20, id(font_dejavu), "T %.1f H %.1f C %.0f", id(scd30_temp).state, id(scd30_hum).state, id(scd30_co2).state);
