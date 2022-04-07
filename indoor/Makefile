@@ -1,10 +1,11 @@
 CONFIG := indoor.yaml
+ESPHOME := ~/.local/bin/esphome
 
 .PHONY: run
 
 run:
-	esphome run $(CONFIG)
+	$(ESPHOME) run $(CONFIG)
 
 upload:
-	esphome upload $(CONFIG)
+	$(ESPHOME) upload $(CONFIG)
 
